@@ -1,0 +1,295 @@
+---
+title: "Final report"
+author: "Zhaobin Liu"
+date: "2018 12 12"
+output: pdf_document 
+
+
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Abstract
+The following analysis is about the Airbnb dataset. I choose the Las_vegas dataset from http://tomslee.net/airbnb-data-collection-get-the-data. I will mainly focus on analyzing some significant variables, such as price, rating and the number of bedrooms. It will be important to know which factor will affect the most on each other. There are six models building in this analysis, and I will interpret each of them to pick the better model to give some useful information of the dataset. 
+
+# Introduction
+
+## Background
+Nowadays, choosing airbnb over hotel has been more frequencies because of its flexibility, price and many other factors. We all want to pick the best choice for our trip. Then we need to learn how to look at the data and how the factors relate with each others. Sometimes, data are deceptive and misleading in some ways. Building models can avoid many obvious problems. Thus, we can get a sense of which factors are the most persuasive in the dataset. 
+
+
+## Previous work
+There are a lot of dataset on the website. Many people have already collected some specific variables, such as room_id, reviews, overall_satisfaction of airbnb apartments. These data can give people a basic information of airbnb apartments. 
+
+
+
+# Method
+
+## Data source
+
+The airbnb information of Las vegas dataset will be from the Airbnb website: http://tomslee.net/airbnb-data-collection-get-the-data. I am using R to combine all of five separate csv files into one csv file in order to prepare for analyzing the model doing the EDA.
+
+
+
+The variables I am using in the dataset are: room_id, host_id, room_type, neighborhood, reviews, overall_satisfaction, accommodates, bedrooms, price, latitude and longitude. 
+I am going to the study two interesting variables: overall_satisfaction and the price. The former is the average rating (1-5) that the listing has received from those visitors who left a review. The latter is the price for a night stay. 
+
+
+
+
+```{r，message=FALSE, warning=FALSE，include = FALSE}
+library(readr)
+library(dplyr)
+library(plyr)
+
+tomslee_airbnb_las_vegas_0919_2017_02_25 <- read_csv("tomslee_airbnb_las_vegas_0919_2017-02-25.csv",col_types = cols(borough = col_skip(),last_modified = col_skip(), minstay = col_skip(),room_id = col_integer()))
+
+tomslee_airbnb_las_vegas_0960_2017_03_10 <- read_csv("tomslee_airbnb_las_vegas_0960_2017-03-10.csv", 
+     col_types = cols(borough = col_skip(), 
+         last_modified = col_skip(), minstay = col_skip()))
+
+tomslee_airbnb_las_vegas_1265_2017_05_14 <- read_csv("tomslee_airbnb_las_vegas_1265_2017-05-14.csv", 
+     col_types = cols(bathrooms = col_skip(),city = col_skip(), 
+         borough = col_skip(), country = col_skip(), 
+         last_modified = col_skip(), location = col_skip(), 
+         minstay = col_skip(), survey_id = col_skip()))
+
+tomslee_airbnb_las_vegas_1390_2017_06_24 <- read_csv("tomslee_airbnb_las_vegas_1390_2017-06-24.csv", 
+     col_types = cols(bathrooms = col_skip(), 
+         borough = col_skip(), city = col_skip(), 
+         country = col_skip(), last_modified = col_skip(), 
+         location = col_skip(), minstay = col_skip(), 
+         survey_id = col_skip()))
+
+tomslee_airbnb_las_vegas_1507_2017_07_20 <- read_csv("tomslee_airbnb_las_vegas_1507_2017-07-20.csv", 
+     col_types = cols(bathrooms = col_skip(), 
+         borough = col_skip(), city = col_skip(), 
+         country = col_skip(), last_modified = col_skip(), 
+         location = col_skip(), minstay = col_skip(), 
+         survey_id = col_skip()))
+Las_vegas_total <- rbind(tomslee_airbnb_las_vegas_0919_2017_02_25, tomslee_airbnb_las_vegas_0960_2017_03_10,tomslee_airbnb_las_vegas_1265_2017_05_14,tomslee_airbnb_las_vegas_1390_2017_06_24,tomslee_airbnb_las_vegas_1507_2017_07_20)
+overall_satisfaction_data <- Las_vegas_total %>%
+  filter(Las_vegas_total$overall_satisfaction > 0)
+
+reviews_data <- Las_vegas_total %>%
+  filter(Las_vegas_total$reviews > 0)
+```
+
+
+
+## Model used
+
+```{r,message= FALSE}
+library(arm)
+
+# GLM for Overall_satisfaction
+rating_reg <- glm(overall_satisfaction ~ factor(room_type) + log(price)  + 
+                    (accommodates) + bedrooms,data = overall_satisfaction_data)
+
+# random slope
+rating_reg_2 <- lmer(overall_satisfaction ~ factor(room_type) + (accommodates) + bedrooms 
+                     + (0 + log(price) | neighborhood),data = overall_satisfaction_data)
+
+# random slope and intercept with interaction
+rating_reg_3 <- lmer(overall_satisfaction ~ factor(room_type)*accommodates + bedrooms + log(price) + 
+                       (1 + log(price) | neighborhood),data = overall_satisfaction_data)
+
+# GLM for Price
+price_reg <- glm(log(price) ~ factor(room_type) + overall_satisfaction + accommodates + 
+                   bedrooms, data = overall_satisfaction_data)
+
+# random intercept
+price_reg_2 <- lmer(log(price) ~ factor(room_type) + overall_satisfaction + accommodates 
+                    + bedrooms + (1|neighborhood), data = overall_satisfaction_data)
+
+# random intercept and slope
+price_reg_3 <- lmer(log(price) ~ factor(room_type) + accommodates + bedrooms + 
+                      (1 + overall_satisfaction|neighborhood), data = overall_satisfaction_data)
+
+```
+# Result
+
+## Model choice and interpretation
+```{r}
+display(price_reg)
+```
+According to the model, we can see all the coefficients are statistically significant. With each unit increase of overall_satisfaction, log(price) will increase by 0.22. With each unit increase of accommodates and bedrooms, log(price) will increase by 0.06 and 0.12. Private room has 0.78 lower weighted price than the Entire home/apt. Shared room has 1.4 lower weighted price than the Entire home/apt.
+
+
+```{r}
+display(price_reg_2)
+```
+According to the model, all the coefficients are statistically significant. With each increase unit of overall_satisfaction, log(price) will increase by 0.23. With each increase unit of accommodates and bedrooms, log(price) will increase by 0.05 and 0.16. Private room has 0.71 lower weighted price than the Entire home/apt. Shared room has 1.35 lower weighted price than the price of Entire home/apt. The neighborhood variation has the standard deviation of 0.45 and the intercept of 0.12.
+
+
+```{r}
+display(price_reg_3)
+```
+All the coefficients are tatistically significant. All signs do not change comparing to the previous model. The residual is still 0.45. the slope of the overall_satisfaction is 0.26. There is correlation with intercept of -1.
+
+
+```{r}
+display(rating_reg)
+```
+According to the model, we can see all the coefficients are statistically significant except the shared room coefficient. With each unit increase of log(price), overall_satisfaction will increase by 0.1. Accommodates are not affecting the model. With each unit increase of bedrooms, overall_satisfaction will decrease by 0.02. Private room has 0.11 higher weighted rating than the Entire home/apt. Shared room has 0.01 lower weighted rating than the Entire home/apt.
+
+
+```{r}
+display(rating_reg_2)
+```
+According to the model, we can see all the coefficients are statistically significant except the shared room coefficient. Accommodates are not affecting the model. With each unit increase of bedrooms, overall_satisfaction will decrease by 0.04. Private room has 0.09 higher weighted rating than the Entire home/apt. Shared room has 0.02 lower weighted rating than the Entire home/apt. The neighborhood variation has the standard deviation of 0.31 and the intercept of 0.11.
+
+
+```{r}
+display(rating_reg_3)
+```
+All the coefficients are statistically significant. Some coefficients are changing slightly due to the effect of the interaction. The AIC and DIC are lower than the previous model that this model should be a better fit.
+
+
+## Model checking
+```{r}
+anova(price_reg_3,price_reg_2,price_reg)
+```
+We can see that price_reg_3 is a better fit comparing to the other two model with lower AIC and BIC values.
+
+
+```{r}
+library(arm)
+plot(price_reg_3)
+qqnorm(resid(price_reg_3))
+
+
+par(mfrow=c(1,3))
+binnedplot(fitted(price_reg_3),residuals(price_reg_3, type="response"))
+binnedplot(fitted(price_reg_2),residuals(price_reg_2, type="response"))
+binnedplot(fitted(price_reg),residuals(price_reg, type="response"))
+
+```
+The resid plot and qqplot which looks like normal of the third model of Price seems fine. However, when we compare three binnedplots of all models of price, the first two graphs do not show the significant difference. There are still decent amounts of points outside of the range. 
+
+
+
+
+```{r}
+anova(rating_reg_3,rating_reg_2,rating_reg)
+```
+We can see that rating_reg_3 is a better fit comparing to the other two model with lower AIC and BIC values.
+
+
+```{r}
+library(arm)
+plot(rating_reg_3)
+qqnorm(resid(rating_reg_3))
+
+
+par(mfrow=c(1,3))
+binnedplot(fitted(rating_reg_3),residuals(rating_reg_3, type="response"))
+binnedplot(fitted(rating_reg_2),residuals(rating_reg_2, type="response"))
+binnedplot(fitted(rating_reg),residuals(rating_reg, type="response"))
+```
+The resid and qqplot do not look very well. There are clearly a trend away with the fitted line. By looking at the three binnedplot plots, the rating_reg_3 does not look very good comparing to the others despite being the best model analyzing by the anova table. 
+
+
+
+
+# Discussion
+
+## Implication and Limitation
+For the six models, I did three for predicting price and three for predicting overall_satisfaction. 
+
+For the price model, the "price_reg_3" looks more reasonable comparing to the other two. 
+Room_type, accomodates, bedrooms, and some random intercept and slope between overall_satisfaction and neighborhood will be the main effect of the price. 
+
+For the overall_satisfaction model, the "rating_reg_3" seems like the best choice according to the anova table; However, the binnedplot, residual and qqplot plots suggest that this model still has a lot of problems because a good model fit should have random patterns of the residual. It would be best to refit a better model for the overall_satisfaction. 
+
+
+## Future direction
+
+For the price model, in the binnedplot, there are still a lot of points outside of the fitted line. One of the reason might be that the dataset has many outliers. Maybe I can clean the data in a beter way next time.
+
+For the overall_satisfaction model, since all models look not very well, it is best to try some other models, such as mult-level logistic model. I can do the same step of the mult-level linear model for the logistic model by testing random slope and intercept. 
+
+
+# Reference
+http://tomslee.net/airbnb-data-collection-get-the-data 
+
+
+# Appendix
+
+Some interesting EDA
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(arm)
+```
+
+```{r}
+# Distribution of rating
+hist(Las_vegas_total$overall_satisfaction)
+summary(Las_vegas_total$overall_satisfaction)
+```
+
+According to the graph, the rating of airbnb is between 1 and 5. Zero values mean people did not rate on it. The median is 4.5. Thus, we can see overall the airbnb properties in Las vegas have high rating.
+
+
+```{r}
+library(ggplot2)
+# Distribution of bedrooms 
+# Each number represents an neighborhood
+
+ggplot(Las_vegas_total, aes(x = factor(neighborhood), y = bedrooms)) + geom_bar(stat = "identity")
+
+# Distribution of accommodates in room types
+ggplot(Las_vegas_total, aes(x = accommodates, fill = room_type)) + geom_bar(position = "fill")
+
+
+# Room_type vs price
+
+Shareroom <- Las_vegas_total %>%
+  filter(Las_vegas_total$room_type == "Shared room")
+Entire_room <- Las_vegas_total %>%
+  filter(Las_vegas_total$room_type == "Entire home/apt")
+Private_room <- Las_vegas_total %>%
+  filter(Las_vegas_total$room_type == "Private room")
+avg_price <- data.frame(room_type=c("Sharedroom","Entire room/apt","Private_room"),
+                price=c(mean(Shareroom$price), mean(Entire_room$price),mean(Private_room$price)))
+ggplot(data=avg_price, aes(x=room_type,y = price)) + geom_bar(stat="identity")
+
+# Bedrooms  vs price
+ggplot(Las_vegas_total,aes(x = bedrooms,y = log(price))) + geom_point() +geom_smooth()
+```
+Apartments with more bedrooms tend to have higher price.
+
+
+```{r}
+library(dplyr)
+library(ggplot2)
+# Rating vs room_type
+Shareroom_rating <- overall_satisfaction_data %>%
+  filter(room_type == "Shared room")
+
+Entire_rating <- overall_satisfaction_data %>%
+  filter(room_type == "Entire home/apt")
+
+Privateroom_rating <- overall_satisfaction_data %>%
+  filter(room_type == "Private room")
+
+avg_rating <- data.frame(room_type=c("Sharedroom","Entire room/apt","Private_room"),
+                rating=c(mean(Shareroom$overall_satisfaction), mean(Entire_room$overall_satisfaction),
+                         mean(Private_room$overall_satisfaction)))
+
+ggplot(data=avg_rating, aes(x=room_type,y = rating)) + geom_bar(stat="identity")
+
+# Rating vs reviews
+# Higher over_satisfaction have more reviews 
+ggplot(overall_satisfaction_data,aes(x = overall_satisfaction,y =reviews )) +geom_jitter() + 
+  geom_bin2d() 
+```
+
+
+

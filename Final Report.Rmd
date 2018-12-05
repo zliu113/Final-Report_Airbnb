@@ -13,16 +13,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Abstract
-The following analysis is about the Airbnb dataset. I choose the Las_vegas dataset from http://tomslee.net/airbnb-data-collection-get-the-data. I will mainly focus on analyzing some significant variables, such as price, rating and the number of bedrooms. It will be important to know which factor will affect the most on each other. There are six models building in this analysis, and I will interpret each of them to pick the better model to give some useful information of the dataset. 
+The following analysis is about the Airbnb dataset. I choose the Las_vegas dataset from http://tomslee.net/airbnb-data-collection-get-the-data. I will mainly focus on analysing some significant variables, such as price, rating and the number of bedrooms. It will be important to know which factor will affect the most on each other. There are six models building in this analysis, and I will interpret each of them to pick the better model to give some useful information of the dataset.
+
 
 # Introduction
 
 ## Background
-Nowadays, choosing airbnb over hotel has been more frequencies because of its flexibility, price and many other factors. We all want to pick the best choice for our trip. Then we need to learn how to look at the data and how the factors relate with each others. Sometimes, data are deceptive and misleading in some ways. Building models can avoid many obvious problems. Thus, we can get a sense of which factors are the most persuasive in the dataset. 
+Nowadays, choosing Airbnb over hotel has been more frequencies because of its flexibility, price and many other factors. We all want to pick the best choice for our trip. Then we need to learn how to look at the data and how the factors relate with each other’s. Sometimes, data are deceptive and misleading in some ways. Building models can avoid many obvious problems. Thus, we can get a sense of which factors are the most persuasive in the dataset. 
 
 
 ## Previous work
-There are a lot of dataset on the website. Many people have already collected some specific variables, such as room_id, reviews, overall_satisfaction of airbnb apartments. These data can give people a basic information of airbnb apartments. 
+There are a lot of dataset on the website. Many people have already collected some specific variables, such as room_id, reviews, overall_satisfaction of Airbnb apartments. These data can give people a basic information of Airbnb apartments.
 
 
 
@@ -30,12 +31,12 @@ There are a lot of dataset on the website. Many people have already collected so
 
 ## Data source
 
-The airbnb information of Las vegas dataset will be from the Airbnb website: http://tomslee.net/airbnb-data-collection-get-the-data. I am using R to combine all of five separate csv files into one csv file in order to prepare for analyzing the model doing the EDA.
+The airbnb information of Las Vegas dataset will be from the Airbnb website: http://tomslee.net/airbnb-data-collection-get-the-data. I am using R to combine all of five separate csv files into one csv file in order to prepare for analyzing the model doing the EDA.
 
 
 
 The variables I am using in the dataset are: room_id, host_id, room_type, neighborhood, reviews, overall_satisfaction, accommodates, bedrooms, price, latitude and longitude. 
-I am going to the study two interesting variables: overall_satisfaction and the price. The former is the average rating (1-5) that the listing has received from those visitors who left a review. The latter is the price for a night stay. 
+I am going to the study two interesting variables: overall_satisfaction and the price. The former is the average rating (1-5) that the listing has received from those visitors who left a review. The latter is the price for a night stay.
 
 
 
@@ -201,16 +202,19 @@ The resid and qqplot do not look very well. There are clearly a trend away with 
 For the six models, I did three for predicting price and three for predicting overall_satisfaction. 
 
 For the price model, the "price_reg_3" looks more reasonable comparing to the other two. 
-Room_type, accomodates, bedrooms, and some random intercept and slope between overall_satisfaction and neighborhood will be the main effect of the price. 
+Room_type, accommodates, bedrooms, and some random intercept and slope between overall_satisfaction and neighborhood will be the main effect of the price. 
 
-For the overall_satisfaction model, the "rating_reg_3" seems like the best choice according to the anova table; However, the binnedplot, residual and qqplot plots suggest that this model still has a lot of problems because a good model fit should have random patterns of the residual. It would be best to refit a better model for the overall_satisfaction. 
+For the overall_satisfaction model, the "rating_reg_3" seems like the best choice according to the Anova table; However, the binnedplot, residual and qqplot plots suggest that this model still has a lot of problems because a good model fit should have random patterns of the residual. It would be best to refit a better model for the overall_satisfaction.
+
+
 
 
 ## Future direction
 
-For the price model, in the binnedplot, there are still a lot of points outside of the fitted line. One of the reason might be that the dataset has many outliers. Maybe I can clean the data in a beter way next time.
+For the price model, in the binned residual plot, there are still a lot of points outside of the fitted line. One of the reasons might be that the dataset has many outliers. Maybe I can clean the data in a better way next time.
 
-For the overall_satisfaction model, since all models look not very well, it is best to try some other models, such as mult-level logistic model. I can do the same step of the mult-level linear model for the logistic model by testing random slope and intercept. 
+For the overall_satisfaction model, since all models look not very well, it is best to try some other models, such as mult-level logistic model. I can do the same step of the mult-level linear model for the logistic model by testing random slope and intercept.
+
 
 
 # Reference

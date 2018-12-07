@@ -41,7 +41,7 @@ I am going to the study two interesting variables: overall_satisfaction and the 
 
 
 
-```{r，message=FALSE, warning=FALSE，include = FALSE}
+```{r,message=FALSE, warning=FALSE,include = FALSE}
 library(readr)
 library(dplyr)
 library(plyr)
@@ -114,38 +114,45 @@ price_reg_3 <- lmer(log(price) ~ factor(room_type) + accommodates + bedrooms +
 # Result
 
 ## Model choice and interpretation
-```{r}
+```{r,message=FALSE,warning=FALSE}
+library(coefplot)
+coefplot(price_reg)
 display(price_reg)
 ```
 According to the model, we can see all the coefficients are statistically significant. With each unit increase of overall_satisfaction, log(price) will increase by 0.22. With each unit increase of accommodates and bedrooms, log(price) will increase by 0.06 and 0.12. Private room has 0.78 lower weighted price than the Entire home/apt. Shared room has 1.4 lower weighted price than the Entire home/apt.
 
 
 ```{r}
-display(price_reg_2)
+display(price_reg_2) 
+multiplot(price_reg_2)
 ```
 According to the model, all the coefficients are statistically significant. With each increase unit of overall_satisfaction, log(price) will increase by 0.23. With each increase unit of accommodates and bedrooms, log(price) will increase by 0.05 and 0.16. Private room has 0.71 lower weighted price than the Entire home/apt. Shared room has 1.35 lower weighted price than the price of Entire home/apt. The neighborhood variation has the standard deviation of 0.45 and the intercept of 0.12.
 
 
 ```{r}
 display(price_reg_3)
+multiplot(price_reg_3)
 ```
 All the coefficients are tatistically significant. All signs do not change comparing to the previous model. The residual is still 0.45. the slope of the overall_satisfaction is 0.26. There is correlation with intercept of -1.
 
 
 ```{r}
 display(rating_reg)
+coefplot(rating_reg)
 ```
 According to the model, we can see all the coefficients are statistically significant except the shared room coefficient. With each unit increase of log(price), overall_satisfaction will increase by 0.1. Accommodates are not affecting the model. With each unit increase of bedrooms, overall_satisfaction will decrease by 0.02. Private room has 0.11 higher weighted rating than the Entire home/apt. Shared room has 0.01 lower weighted rating than the Entire home/apt.
 
 
 ```{r}
 display(rating_reg_2)
+multiplot(rating_reg_2)
 ```
 According to the model, we can see all the coefficients are statistically significant except the shared room coefficient. Accommodates are not affecting the model. With each unit increase of bedrooms, overall_satisfaction will decrease by 0.04. Private room has 0.09 higher weighted rating than the Entire home/apt. Shared room has 0.02 lower weighted rating than the Entire home/apt. The neighborhood variation has the standard deviation of 0.31 and the intercept of 0.11.
 
 
 ```{r}
 display(rating_reg_3)
+multiplot(rating_reg_3)
 ```
 All the coefficients are statistically significant. Some coefficients are changing slightly due to the effect of the interaction. The AIC and DIC are lower than the previous model that this model should be a better fit.
 
